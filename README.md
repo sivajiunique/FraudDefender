@@ -46,5 +46,5 @@ The model can be deployed using Flask or FastAPI for real-time fraud detection.
 - Optimize hyperparameters further.
 
 ## Contact
-For any questions, please reach out at [radhamam456@gmail.com].
+For any questions, please reach out at [sivajiunique@gmail.com].
 
