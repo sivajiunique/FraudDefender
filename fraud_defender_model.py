@@ -1,4 +1,4 @@
-#  Step 1: Import Required Libraries
+# Step 1: Import Required Libraries
 import numpy as np
 import pandas as pd
 import matplotlib.pyplot as plt
@@ -21,33 +21,35 @@ from sklearn.metrics import ConfusionMatrixDisplay
 import warnings
 warnings.filterwarnings("ignore")
 
-#  Step 2: Load the Data
-df = pd.read_csv("creditcard.csv")  # Ensure the CSV file is in the same directory
+# Step 2: Load the Data
+df = pd.read_csv("creditcard.csv")
 
-#  Step 3: Exploratory Data Analysis (EDA)
+# Step 3: Exploratory Data Analysis (EDA)
 print(df.info())
 print(df.describe())
 print(df.head())
-print("Missing Values:\n", df.isnull().sum())  # Check for missing values
+print("Missing Values:\n", df.isnull().sum())
 
-#  Step 4: Data Preprocessing
+# Step 4: Data Preprocessing - Scaling 'Amount' and Dropping 'Time'
 scaler = StandardScaler()
 df["Amount"] = scaler.fit_transform(df[["Amount"]])
-df = df.drop(columns=["Time"])  # Drop 'Time' as it's not useful
+df.drop(columns=["Time"], inplace=True)
 
-#  Step 5: Handling Class Imbalance using SMOTE (Balanced Sampling)
+# Step 5: Handling Class Imbalance with SMOTE
 X = df.drop(columns=["Class"])
 y = df["Class"]
 
-smote = SMOTE(sampling_strategy=0.5, random_state=42)  # Oversample fraud cases to 50% of non-fraud cases
+# Applying SMOTE to oversample minority class
+smote = SMOTE(sampling_strategy=0.5, random_state=42)
 X_resampled, y_resampled = smote.fit_resample(X, y)
 
+# Verifying class distribution after resampling
 print("Class distribution after SMOTE:\n", pd.Series(y_resampled).value_counts())
 
-#  Step 6: Train-Test Split
+# Step 6: Train-Test Split
 X_train, X_test, y_train, y_test = train_test_split(X_resampled, y_resampled, test_size=0.2, random_state=42, stratify=y_resampled)
 
-#  Step 7: Train & Evaluate Multiple Models
+# Step 7: Define Models and Evaluate
 models = {
     "Logistic Regression": LogisticRegression(),
     "Decision Tree": DecisionTreeClassifier(max_depth=10, random_state=42),
@@ -55,48 +57,44 @@ models = {
     "XGBoost": XGBClassifier(use_label_encoder=False, eval_metric='logloss', n_estimators=50, max_depth=6, learning_rate=0.1, n_jobs=-1)
 }
 
+# Store performance metrics
 results = {}
 
-for name, model in models.items():
-    print(f"\n🔹 Training {name}...")
+for model_name, model in models.items():
+    print(f"\n🔹 Training {model_name}...")
     model.fit(X_train, y_train)
     y_pred = model.predict(X_test)
 
-    accuracy = accuracy_score(y_test, y_pred)
-    precision = precision_score(y_test, y_pred)
-    recall = recall_score(y_test, y_pred)
-    f1 = f1_score(y_test, y_pred)
-    roc_auc = roc_auc_score(y_test, y_pred)
-    
-    results[name] = {
-        "Accuracy": accuracy,
-        "Precision": precision,
-        "Recall": recall,
-        "F1-score": f1,
-        "AUC-ROC": roc_auc
+    # Calculate performance metrics
+    metrics = {
+        "Accuracy": accuracy_score(y_test, y_pred),
+        "Precision": precision_score(y_test, y_pred),
+        "Recall": recall_score(y_test, y_pred),
+        "F1-score": f1_score(y_test, y_pred),
+        "AUC-ROC": roc_auc_score(y_test, y_pred)
     }
 
-    print(f" {name} Performance:")
-    print(f"  - Accuracy: {accuracy:.4f}")
-    print(f"  - Precision: {precision:.4f}")
-    print(f"  - Recall: {recall:.4f}")
-    print(f"  - F1-score: {f1:.4f}")
-    print(f"  - AUC-ROC: {roc_auc:.4f}")
+    results[model_name] = metrics
 
-#  Step 8: Confusion Matrix Visualization
-for name, model in models.items():
-    plt.figure(figsize=(5, 5))
+    # Print metrics for current model
+    print(f"{model_name} Performance:")
+    for metric, value in metrics.items():
+        print(f"  - {metric}: {value:.4f}")
+
+# Step 8: Visualize Confusion Matrices
+for model_name, model in models.items():
+    plt.figure(figsize=(6, 6))
     cm = confusion_matrix(y_test, model.predict(X_test))
     ConfusionMatrixDisplay(cm).plot(cmap='coolwarm', values_format='d')
-    plt.title(f"Confusion Matrix - {name}")
+    plt.title(f"Confusion Matrix - {model_name}")
     plt.show()
 
-#  Step 9: Save the Best Model (Based on Accuracy)
-best_model_name = max(results, key=lambda x: results[x]["Accuracy"])
+# Step 9: Save the Best Model
+# Find the model with the highest accuracy and save it
+best_model_name = max(results, key=lambda model: results[model]["Accuracy"])
 best_model = models[best_model_name]
 
+with open("fraud_defender_model.pkl", "wb") as file:
+    pickle.dump(best_model, file)
 
-with open("fraud_detection_model.pkl", "wb") as f:
-    pickle.dump(best_model, f)
-
-print(f"\n Best model saved: {best_model_name}")
+print(f"\nBest model saved: {best_model_name}")
