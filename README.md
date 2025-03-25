@@ -1,14 +1,14 @@
 # Credit Card Fraud Detection - README
 
 ## Project Overview
-This project aims to detect fraudulent credit card transactions using machine learning. A Random Forest Classifier is trained on a dataset containing transactions from European cardholders in September 2013.
+This project focuses on detecting fraudulent credit card transactions using machine learning. The dataset contains anonymized transaction details from European cardholders, with the aim of identifying fraudulent transactions. Multiple machine learning algorithms such as Logistic Regression, Decision Tree, Random Forest, and XGBoost are used, with the model performance evaluated using various metrics.
 
 ## Folder Structure
 ```
 ├── creditcard.csv            # https://kh3-ls-storage.s3.us-east-1.amazonaws.com/DS Project Guide Data Set/creditcard.csv
 
-├── credit_card_fraud_detection.py      # Python script for model training
-├── fraud_detection_model.pkl  # Trained machine learning model
+├── fraud_defender_model.py      # Python script for model training
+├── fraud_defender_model.pkl  # Trained machine learning model
 ├── report.pdf              # Project report
 ├── README.md               # Documentation
 ```
@@ -28,7 +28,7 @@ pip install -r requirements.txt
 
 ### 3. Run the Model Training Script
 ```
-python credit_card_fraud_detection.py
+python fraud_defender_model.py
 ```
 
 ## Model Details
@@ -38,12 +38,12 @@ python credit_card_fraud_detection.py
 - **Final Model Accuracy:** >75%
 
 ## Deployment Plan
-The model can be deployed using Flask or FastAPI for real-time fraud detection.
+The model can be deployed in a web application using Flask or FastAPI to detect fraud in real-time. It could also be integrated into a larger fraud detection system or API.
 
 ## Future Enhancements
-- Implement deep learning models for improved performance.
-- Integrate with a real-time fraud detection API.
-- Optimize hyperparameters further.
+- Implement deep learning models such as Neural Networks to improve accuracy.
+- Optimize model hyperparameters using techniques like GridSearchCV.
+- Integrate the system with an active fraud monitoring service.
 
 ## Contact
 For any questions, please reach out at [sivajiunique@gmail.com].
